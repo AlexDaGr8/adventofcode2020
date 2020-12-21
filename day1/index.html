@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        function readFile() {
+            return new Promise((res, rej) => {
+                var rawFile = new XMLHttpRequest();
+                rawFile.open('GET', './input.txt', true);
+                rawFile.onreadystatechange = function() {
+                    if (rawFile.readyState === 4) {
+                        var allText = rawFile.responseText;
+                        res(allText.split('\n'))
+                    }
+                }
+                rawFile.send();
+            })
+        }
+        let target = 2020;
+        function sumGetNumbers(arr, start) {
+            let sArr = arr.slice(start, arr.length);
+            for (let j = 1; j < sArr.length; j++) {
+                for (let k = j + 1; k < sArr.length; k++) {
+                    let sum = sArr[0] + sArr[j] + sArr[k];
+                    if (sum === target) {
+                        return [sArr[0], sArr[j], sArr[k]];
+                    }
+                }
+            }
+            return null;
+        }
+        doThings();
+        async function doThings() {
+            let input = await readFile();
+            let expense = input.map(d => +d);
+            // let expense = [
+            //     1721,
+            //     979,
+            //     366,
+            //     299,
+            //     675,
+            //     1456
+            // ]
+            for (let i = 0; i < expense.length; i++) {
+                let values = sumGetNumbers(expense, i);
+                if (values) {
+                    console.log('values', values)
+                    console.log(values.reduce((a,c) => a * c, 1));
+                }
+            }
+        }
+    </script>
+</body>
+</html>
