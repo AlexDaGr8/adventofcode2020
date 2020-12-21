@@ -17,15 +17,29 @@
     </style>
 </head>
 <body>
-    <nav>
-        <a data-value="day1" href="#">Day 1</a>
-        <a data-value="day2" href="#">Day 2</a>
+    <nav id="nav">
     </nav>
     <div class="container">
         <iframe id="frame"></iframe>
     </div>
     <script type="module">
         import readFile from './readFile.js';
+
+        String.prototype.replaceAt = function(index, replacement) {
+            return this.substr(0, index) + replacement + this.substr(index + replacement.length);
+        }
+        
+        let days = Array.from(Array(25).keys()).map(k => k + 1);
+
+        let nav = document.getElementById('nav')
+        
+        for (let d of days) {
+            let a = document.createElement('a')
+            a.href = '#';
+            a.dataset.value = `day${d}`;
+            a.innerText = `Day ${d}`;
+            nav.appendChild(a)
+        }
 
         let frame = document.getElementById('frame');
         frame.src = './day1'
