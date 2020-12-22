@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Day 5 - Seat Assignment</h1>
+    <div id="result"></div>
+    <script type="module">
+        import readFile from '../readFile.js';
+
+        init();
+
+        async function init() {
+            let input = await readFile('./test.txt');
+
+            console.log('input', input)
+
+            let rows = Array.from(Array(128).keys());
+            let columns = Array.from(Array(8).keys());
+
+            console.log('rows', rows);
+            console.log('columns', columns);
+
+            console.log('rows.length/2', rows.length / 2)
+
+            let boardingPasses = [];
+
+            for (let bp of input) {
+                let boardingPass = {
+                    code: input,
+                    row: [...rows],
+                    column: [...columns],
+                    id: -1
+                }
+                for (let char of bp) {
+                    if (['B','F'].includes(char)) {
+                        let half = boardingPass.row.length/2;
+                        boardingPass.row = char === 'F' ?
+                            boardingPass.row.slice(0,half) :
+                            boardingPass.row.slice(half, boardingPass.row.length);
+                        if (boardingPass.row.length === 1) {
+                            boardingPass.row = boardingPass.row[0];
+                        }
+                    }
+                    if (['R','L'].includes(char)) {
+                        let half = boardingPass.column.length/2;
+                        boardingPass.column = char === 'L' ?
+                            boardingPass.column.slice(0,half) :
+                            boardingPass.column.slice(half, boardingPass.column.length);
+                        if (boardingPass.column.length === 1) {
+                            boardingPass.column = boardingPass.column[0];
+                        }
+                    }
+                }
+                boardingPass.id = boardingPass.row * 8 + boardingPass.column;
+                console.log('boardingPass', boardingPass);
+            }
+        }
+        function display(arr) {
+            let resultElem = document.getElementById('result');
+            let resultStr = '';
+            for (let a of arr) {
+                resultStr += `${a.code}: row ${a.row}, column ${a.column}, seat ID ${a.id} <br>`;
+            }
+            resultElem.innerHTML = resultElem;
+        }
+    </script>
+</body>
+</html>
