@@ -49,10 +49,11 @@
                 let foundTrees = findTreesInPath(ip.slope, [...input]);
                 let treeStr = foundTrees.reduce((a,c) => a += c, '');
                 ip.trees = treeStr.match(/X/g).length;
-                outputString += `- Right ${ip.slope.right}, Down ${ip.slope.down}: ${ip.trees}<br>`
+                outputString += `- <a href="#r${ip.slope.right}-d${ip.slope.down}">Right ${ip.slope.right}, Down ${ip.slope.down}: ${ip.trees}</a><br>`
+                showMap(ip, foundTrees);
             }
             // let treesDefined = findTreesInPath({down: 1, right: 3}, [...input]);
-            // showMap(treesDefined);
+            // showMap({down: 1, right: 3}, treesDefined);
             // let treeStr = treesDefined.reduce((a,c) => a += c, '');
             let product = inputParams.reduce((a,c) => a * c.trees, 1);
             let treeCountDiv = document.getElementById('tree-count');
@@ -61,8 +62,12 @@
         String.prototype.replaceAt = function(index, replacement) {
             return this.substr(0, index) + replacement + this.substr(index + replacement.length);
         }
-        function showMap(arr) {
+        function showMap({slope, trees}, arr) {
             let cont = document.getElementById('container');
+            let h4 = document.createElement('h4');
+            h4.id = `r${slope.right}-d${slope.down}`;
+            h4.innerText = `- Right ${slope.right}, Down ${slope.down}: ${trees}`
+            cont.appendChild(h4);
             for (let a of arr) {
                 let p = document.createElement('p')
                 let tree = a.indexOf('X');
@@ -84,17 +89,15 @@
             let countDown = 0;
             while (countDown < height) {
                 if (countRight >= newArr[0].length) {
-                    for (let i = 0; i < newArr.length; i++) {
-                        console.log('newArr', newArr[i])
-                        console.log('coords', coords[i])
+                    for (let i = 0; i < newArr.length; i++) { 
                         newArr[i] = newArr[i] + coords[i];
                     }
                 }
                 let findCoord = newArr[countDown].charAt(countRight)
                 if (findCoord === '.') {
-                    newArr[countDown] = newArr[countDown].replaceAt(countRight, 'O');
+                    newArr[countDown] = newArr[countDown].replaceAt(countRight, `<b>O</b>`);
                 } else {
-                    newArr[countDown] = newArr[countDown].replaceAt(countRight, 'X');
+                    newArr[countDown] = newArr[countDown].replaceAt(countRight, `<b class="tree">X</b>`);
                 }
                 countRight += right;
                 countDown += down;

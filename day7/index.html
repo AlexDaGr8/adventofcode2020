@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Day 7 - bags in bags in bags</h1>
+    <script type="module">
+        import readFile from '../readFile.js'
+
+        init();
+
+        async function init() {
+            let bagRules = await readFile('./input.txt');
+            let rules = {};
+            for (let bagR of bagRules) {
+                let main = bagR.match(/^[a-z]+ [a-z]+/g)[0].split(' ').join('_');
+                let contents = bagR.match(/\d [a-z]+ [a-z]+/g) ? 
+                    bagR.match(/\d [a-z]+ [a-z]+/g).map(c => {
+                        let splitC = c.split(' ');
+                        return {
+                            value: +splitC[0],
+                            key: `${splitC[1]}_${splitC[2]}`
+                        }
+                    }) : 
+                    [];
+                rules[main] = {
+                    color: main,
+                    contents: contents
+                }
+            }
+            console.log('rules', rules)
+            let occurances = {
+                values: []
+            }
+            findAllOccurances('shiny_gold', rules, occurances);
+            console.log('occurances', occurances)
+        }
+        function findAllOccurances(color, rules, occurances) {
+            for (let rule in rules) {
+                if (rules[rule].contents.some(cont => cont.key === color)) {
+                    if (!occurances.values.some(v => v.color === rules[rule].color)) {
+                        occurances.values.push(rules[rule]);
+                    }
+                    findAllOccurances(rules[rule].color, rules, occurances);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
