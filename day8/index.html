@@ -4,17 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        .container {
+            width: 80vw;
+            margin: auto;
+        }
+        div.grid {
+            margin: 2px;
+            display: grid;
+            width: 80%;
+            grid-template-columns: 120px 1fr;
+        }
+    </style>
 </head>
 <body>
     <h1>Day 8 - Handheld Halting</h1>
+    <div class="container">
+        <h4 id="accumulator"></h5>
+        <div id="result"></div>
+    </div>
     <script type="module">
         import readFile from '../readFile.js'
 
         init();
 
         async function init() {
-            let input = await readFile('./input.txt');
-            let diffInput = await readFile('./input.txt');
+            let testFile = './test.txt';
+            let inputFile = './input.txt'
+            let input = await readFile(inputFile);
+            let diffInput = await readFile(inputFile);
             let instructions = formatInstructions(input);
             let ogInst = formatInstructions(diffInput);
             let params = {
@@ -31,11 +49,12 @@
             console.log('accumulator', params.accumulator)
             console.log('cmds', params.cmds)
         }
-        function fixLoop(instructions, params, ogInst) {
+        async function fixLoop(instructions, params, ogInst) {
             params.count++;
             params.cmds = [];
             params.accumulator = 0;
             params.currentId = 0;
+            displayInstructions(instructions)
             console.log(`---------${params.count}---------`)
             console.log('current inst', instructions)
             while(!params.cmds.some(d => d.id === params.currentId) && !params.done) {
@@ -59,6 +78,9 @@
                         params.currentId += currentInst.value;
                         break;
                 }
+                updateAccumulator(params.accumulator);
+                updateInstructions(currentInst, (params.cmds.length - 1) + 1, params.accumulator);
+                let waiting = await waitTime(10)
             }
             if (!params.done) {
                 let newInstructions = JSON.parse(JSON.stringify(ogInst));
@@ -74,14 +96,6 @@
                 fixLoop(newInstructions, params, ogInst)
             }
         }
-        function newArray(oldArray) {
-            let result = [];
-            for (let i = 0; i < oldArray.length; i++) {
-                let newVal = new Object(oldArray[i]);
-                result.push(newVal);
-            }
-            return result;
-        }
         function formatInstructions(input) {
             let result = [];
             let i = 0;
@@ -95,6 +109,33 @@
                 result.push(res)
             }
             return result
+        }
+        function updateAccumulator(newVal) {
+            let accEl = document.getElementById('accumulator');
+            accEl.innerText = `Accumulator ${newVal}`;
+        }
+        function displayInstructions(instructs) {
+            const resultEle = document.getElementById('result');
+            resultEle.innerHTML = '';
+            for (let inst of instructs) {
+                const p = document.createElement('div');
+                p.classList.add('grid')
+                p.id = 'inst-' + inst.id;
+                let sign = inst.value >= 0 ? '+' : ''
+                p.innerHTML = `<div>${inst.type} ${sign}${inst.value}</div> <div class="cmd"></span>`
+                resultEle.appendChild(p)
+            }
+        }
+        function updateInstructions(cmd, i, acc) {
+            let inst = document.querySelector(`#inst-${cmd.id} > .cmd`);
+            inst.classList.add('current')
+            inst.innerText = `${i}: accumulator - ${acc}`;
+            document.getElementById(`inst-${cmd.id}`).scrollIntoView();
+        }
+        async function waitTime(time) {
+            return new Promise((res, rej) => {
+                setTimeout(() => res(), time)
+            })
         }
     </script>
 </body>
