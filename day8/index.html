@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Day 8 - Handheld Halting</h1>
+    <script type="module">
+        import readFile from '../readFile.js'
+
+        init();
+
+        async function init() {
+            let input = await readFile('./input.txt');
+            let diffInput = await readFile('./input.txt');
+            let instructions = formatInstructions(input);
+            let ogInst = formatInstructions(diffInput);
+            let params = {
+                types: ['acc', 'jmp', 'nop'],
+                cmds: [],
+                currentId: 0,
+                accumulator: 0,
+                done: false,
+                count: 0,
+                attemptedLastCmds: []
+            }
+            fixLoop(instructions, params, ogInst)
+            console.log('params', params)
+            console.log('accumulator', params.accumulator)
+            console.log('cmds', params.cmds)
+        }
+        function fixLoop(instructions, params, ogInst) {
+            params.count++;
+            params.cmds = [];
+            params.accumulator = 0;
+            params.currentId = 0;
+            console.log(`---------${params.count}---------`)
+            console.log('current inst', instructions)
+            while(!params.cmds.some(d => d.id === params.currentId) && !params.done) {
+                params.done = params.currentId === instructions.length;
+                if (params.done) {
+                    break;
+                }
+                let currentInst = instructions[params.currentId];
+                switch(currentInst.type) {
+                    case 'acc': 
+                        params.accumulator += currentInst.value
+                        params.cmds.push(new Object(currentInst));
+                        params.currentId++;
+                        break;
+                    case 'nop':
+                        params.cmds.push(new Object(currentInst));
+                        params.currentId++;
+                        break;
+                    case 'jmp':
+                        params.cmds.push(new Object(currentInst));
+                        params.currentId += currentInst.value;
+                        break;
+                }
+            }
+            if (!params.done) {
+                let newInstructions = JSON.parse(JSON.stringify(ogInst));
+                console.log('og', ogInst);
+                let lastId = params.cmds.length - 1;
+                let lastCmd = params.cmds[lastId];
+                console.log('lastCmd', lastCmd)
+                while ((lastCmd.type !== 'jmp' && lastCmd.type !== 'nop') || params.attemptedLastCmds.some(d => d.id === lastCmd.id)) {
+                    lastCmd = params.cmds[lastId--];
+                }
+                params.attemptedLastCmds.push(lastCmd)
+                newInstructions[lastCmd.id].type = lastCmd.type === 'jmp' ? 'nop' : 'jmp';
+                fixLoop(newInstructions, params, ogInst)
+            }
+        }
+        function newArray(oldArray) {
+            let result = [];
+            for (let i = 0; i < oldArray.length; i++) {
+                let newVal = new Object(oldArray[i]);
+                result.push(newVal);
+            }
+            return result;
+        }
+        function formatInstructions(input) {
+            let result = [];
+            let i = 0;
+            for (let inp of input) {
+                let split = inp.split(' ');
+                let res = {
+                    id: i++,
+                    type: split[0],
+                    value: +split[1]
+                }
+                result.push(res)
+            }
+            return result
+        }
+    </script>
+</body>
+</html>

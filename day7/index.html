@@ -44,12 +44,11 @@
                 end: false,
                 color: null
             }
-            let counter = {
-                value: 0
-            }
+            let counter = { value: 0 };
             findMainLevelOcc('shiny_gold', rules, occ, counter);
             console.log('occ', occ)
             console.log('counter', counter)
+            console.log('done')
         }
         // part 1
         function findAllOccurances(color, rules, occurances) {
@@ -65,7 +64,6 @@
         // part 2
         function findMainLevelOcc(color, rules, occ, counter) {
             occ.color = color;
-            occ.totalBags = 0;
             for (let rule in rules) {
                 if (rules[rule].color === occ.color) {
                     if (rules[rule].contents.length > 0) {
@@ -74,7 +72,6 @@
                         for (let cont of rules[rule].contents) {
                             for (let i = 0; i < cont.value; i++) {
                                 counter.value++;
-                                occ.totalBags += cont.value;
                                 cont.values = [];
                                 findMainLevelOcc(cont.color, rules, cont, counter)
                             }
@@ -82,9 +79,6 @@
                     } 
                 }
             }
-        }
-        function getTotalBags(occurances, total) {
-
         }
     </script>
 </body>
